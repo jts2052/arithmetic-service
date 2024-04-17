@@ -1,0 +1,24 @@
+name: Docker Image CI for GHCR
+
+on:
+    push
+
+jobs:
+    build_and_publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: npm install
+              run: npm ci
+            - name: Run unit tests
+              run: npm test --prefix ./server # Add this line to specify the working directory
+            - name: Build and push the image
+              run: |
+                docker login --username jts2052 --password ${{secrets.ACCESS_TOKEN}} ghcr.io
+                docker build -t ghcr.io/jts2052/edusocial-backend:latest --file Dockerfile .  
+                docker push ghcr.io/jts2052/edusocial-backend:latest
+            - name: Build and push the image
+              run: |
+                docker login --username practicum15jts2052 --password ${{secrets.AZURE_CONTAINER_REGISTRY}} practicum15jts2052.azurecr.io
+                docker tag ghcr.io/jts2052/arithmetic-service:1 practicum15jts2052.azurecr.io/arithmetic-service:1
+                docker push practicum15jts2052.azurecr.io/arithmetic-service:1
